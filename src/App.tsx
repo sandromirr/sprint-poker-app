@@ -1,35 +1,44 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import './App.css';
+
+// Import your page components
+import HomePage from './pages/HomePage';
+import SignInPage from './pages/SignInPage';
+import RegisterPage from './pages/RegisterPage';
+import PersonalPage from './pages/PersonalPage';
+import SprintListPage from './pages/SprintListPage';
+import SprintDetailPage from './pages/SprintDetailPage';
+import SprintBoardPage from './pages/SprintBoardPage';
+import InvitationPage from './pages/InvitationPage';
+import NotFoundPage from './pages/NotFoundPage';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const isAuthenticated = true; // Example: replace with actual auth check
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <Router>
+      <div className="app">
+        <main>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/signin" element={isAuthenticated ? <Navigate to="/" /> : <SignInPage />} />
+            <Route path="/register" element={isAuthenticated ? <Navigate to="/" /> : <RegisterPage />} />
+            <Route path="/invite/:inviteId" element={<InvitationPage />} />
+
+            {/* Protected routes */}
+            <Route path="/" element={<HomePage /> } />
+            <Route path="/personal" element={isAuthenticated ? <PersonalPage /> : <Navigate to="/signin" />} />
+            <Route path="/sprints" element={isAuthenticated ? <SprintListPage /> : <Navigate to="/signin" />} />
+            <Route path="/sprints/:sprintId" element={isAuthenticated ? <SprintDetailPage /> : <Navigate to="/signin" />} />
+            <Route path="/sprints/:sprintId/board" element={isAuthenticated ? <SprintBoardPage /> : <Navigate to="/signin" />} />
+
+            {/* 404 route - keep at the end */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </main>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </Router>
+  );
 }
 
-export default App
+export default App;
