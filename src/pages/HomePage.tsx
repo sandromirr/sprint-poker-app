@@ -5,6 +5,7 @@ import CardValuesPreview from '../components/CardValuesPreview';
 import Header from '../components/Header';
 import StatsGrid from '../components/StatsGrid';
 import Footer from '../components/Footer';
+import ContactInfo from '../components/ContactInfo';
 
 const HomePage: React.FC = () => {
   const [roomId, setRoomId] = useState('');
@@ -48,6 +49,18 @@ const HomePage: React.FC = () => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
 
+  const createRoom = () => {
+    const roomId = crypto.randomUUID();
+    
+    const room = {
+      id: roomId,
+      name: username,
+      createdAt: new Date(),
+    };
+    
+    console.log(room);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
@@ -77,12 +90,12 @@ const HomePage: React.FC = () => {
                   placeholder="Enter your name"
                 />
               </div>
-              <Link
-                to="/room"
-                className="block w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg text-center transition-colors duration-200"
+              <button
+                onClick={() => createRoom()}
+                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-6 rounded-lg text-center transition-colors duration-200"
               >
                 Create New Room
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -160,18 +173,13 @@ const HomePage: React.FC = () => {
           </div>
           
           {/* Contact CTA */}
-          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 px-8 py-12 text-center text-white">
-            <div className="max-w-2xl mx-auto">
-              <h3 className="text-2xl font-bold mb-4">Still have questions?</h3>
-              <p className="text-indigo-100 text-lg mb-8">Our support team is here to help you get the most out of Planning Poker.</p>
-              <button className="px-8 py-3 bg-white text-indigo-600 font-medium rounded-lg shadow-md hover:bg-gray-100 transition-colors mb-6">
-                Contact Support
-              </button>
-              <p className="text-sm text-indigo-200">
-                Or email us at <a href="mailto:support@planningpoker.com" className="underline hover:text-white">support@planningpoker.com</a>
-              </p>
-            </div>
-          </div>
+ <ContactInfo 
+            title="Still have questions?"
+            description="Our support team is here to help you get the most out of Planning Poker."
+            buttonText="Contact Support"
+            email="support@planningpoker.com"
+            emailText="Or email us at"
+          />
         </div>
 
         {/* Footer */}
