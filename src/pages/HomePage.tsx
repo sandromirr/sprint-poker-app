@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { FiPlus, FiMinus } from 'react-icons/fi';
 import CardValuesPreview from '../components/CardValuesPreview';
 import Header from '../components/Header';
