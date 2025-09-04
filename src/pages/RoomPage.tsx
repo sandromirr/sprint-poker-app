@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { FaCheck, FaRedo, FaUserFriends, FaUserSecret, FaCrown, FaSearch, FaUsers, FaCopy } from 'react-icons/fa';
+import { useParams } from 'react-router-dom';
+import { FaCheck, FaRedo, FaUserFriends, FaCrown, FaSearch, FaCopy } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -22,28 +22,62 @@ const CARD_COLORS = [
   'from-teal-500 to-teal-600',
 ];
 
+// Function to generate a consistent color from a string
+const stringToColor = (str: string): string => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const hue = Math.abs(hash % 360);
+  return `hsl(${hue}, 70%, 60%)`;
+};
+
 const RoomPage: React.FC = () => {
   const { roomId } = useParams<{ roomId: string }>();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [username, setUsername] = useState('Player 1');
-  const [users, setUsers] = useState<{ [key: string]: { name: string; card: string | null; isSpectator?: boolean } }>({});
+  const [users, setUsers] = useState<{ [key: string]: { 
+    name: string; 
+    card: string | null; 
+    color: string;
+  } }>({});
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [showVotes, setShowVotes] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(true);
+  const [isAdmin] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isCopied, setIsCopied] = useState(false);
 
   // Add some mock users for testing
   useEffect(() => {
     const mockUsers = {
-      '1': { name: 'You', card: selectedCard, isSpectator: false },
-      '2': { name: 'Alex', card: '8', isSpectator: false },
-      '3': { name: 'Jordan', card: '13', isSpectator: false },
-      '4': { name: 'Taylor', card: '5', isSpectator: false },
-      '5': { name: 'Casey', card: '?', isSpectator: false },
-      '6': { name: 'Sam', card: null, isSpectator: true },
-      '7': { name: 'Sandro', card: null, isSpectator: false },  
+      '1': { 
+        name: 'You', 
+        card: selectedCard, 
+        color: stringToColor('You')
+      },
+      '2': { 
+        name: 'Alex', 
+        card: '8', 
+        color: stringToColor('Alex')
+      },
+      '3': { 
+        name: 'Jordan', 
+        card: '13', 
+        color: stringToColor('Jordan')
+      },
+      '4': { 
+        name: 'Taylor', 
+        card: '5', 
+        color: stringToColor('Taylor')
+      },
+      '5': { 
+        name: 'Casey', 
+        card: '?', 
+        color: stringToColor('Casey')
+      },
+      '6': { 
+        name: 'Sandro', 
+        card: null, 
+        color: stringToColor('Sandro')
+      }
     };
     setUsers(mockUsers);
   }, [selectedCard]);
@@ -83,12 +117,7 @@ const RoomPage: React.FC = () => {
                 <FaUserFriends className="mr-2" />
                 <span className="font-mono">#{roomId?.toUpperCase()}</span>
                 <span className="mx-2">•</span>
-                <span>{Object.values(users).filter(u => !u.isSpectator).length} Players</span>
-                {Object.values(users).some(u => u.isSpectator) && (
-                  <span className="ml-2 text-blue-500">
-                    +{Object.values(users).filter(u => u.isSpectator).length} Spectators
-                  </span>
-                )}
+                <span>{Object.keys(users).length} Players</span>
               </div>
             </div>
             
@@ -142,8 +171,9 @@ const RoomPage: React.FC = () => {
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-semibold text-gray-800">Participants</h2>
                   <div className="flex items-center text-sm text-gray-500">
-                    <FaUsers className="mr-1" />
-                    <span>{Object.values(users).filter(u => !u.isSpectator).length}/{Object.values(users).length}</span>
+                    <div className="text-sm text-gray-500">
+                      {Object.values(users).filter(u => u.card).length} of {Object.keys(users).length} voted
+                    </div>
                   </div>
                 </div>
                 <div className="mt-3 relative">
@@ -164,16 +194,17 @@ const RoomPage: React.FC = () => {
                   .filter(([_, user]) => 
                     user.name.toLowerCase().includes(searchQuery.toLowerCase())
                   )
-                  .map(([id, user], index) => (
+                  .map(([id, user]) => (
                     <div 
                       key={id}
-                      className={`p-3 hover:bg-gray-50 transition-colors duration-150 ${user.isSpectator ? 'opacity-70' : ''}`}
+                      className="p-3 hover:bg-gray-50 transition-colors duration-150"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center min-w-0">
-                          <div className={`relative flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white font-medium shadow-inner ${
-                            CARD_COLORS[index % CARD_COLORS.length]
-                          }`}>
+                          <div 
+                            className="relative flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white font-medium shadow-inner"
+                            style={{ backgroundColor: user.color }}
+                          >
                             {user.name.charAt(0).toUpperCase()}
                             {isAdmin && id === '1' && (
                               <div className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 rounded-full p-0.5">
@@ -184,11 +215,6 @@ const RoomPage: React.FC = () => {
                           <div className="ml-3 min-w-0">
                             <p className="text-sm font-medium text-gray-900 truncate">
                               {user.name}
-                              {user.isSpectator && (
-                                <span className="ml-1.5 px-1.5 py-0.5 text-xs font-normal bg-gray-100 text-gray-500 rounded-full">
-                                  Spectator
-                                </span>
-                              )}
                             </p>
                             {user.card && showVotes && (
                               <p className="text-xs text-gray-500">Voted: {user.card}</p>
@@ -196,23 +222,19 @@ const RoomPage: React.FC = () => {
                           </div>
                         </div>
                         
-                        {!user.isSpectator && (
-                          <div className="ml-2 flex-shrink-0">
-                            {user.card && !showVotes ? (
-                              <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
-                                <FaCheck className="text-green-500 text-xs" />
-                              </div>
-                            ) : showVotes && user.card ? (
-                              <div className="px-3 py-1 bg-blue-500 text-white text-sm font-bold rounded-lg shadow-sm">
-                                {user.card}
-                              </div>
-                            ) : !showVotes ? (
-                              <div className="w-7 h-7 rounded-full bg-gray-200 animate-pulse" />
-                            ) : (
-                              <div className="text-xs text-gray-400">No vote</div>
-                            )}
-                          </div>
-                        )}
+                        <div className="ml-2 flex-shrink-0">
+                          {user.card && !showVotes ? (
+                            <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
+                              <FaCheck className="text-green-500 text-xs" />
+                            </div>
+                          ) : showVotes && user.card ? (
+                            <div className="px-3 py-1 bg-blue-500 text-white text-sm font-bold rounded-lg shadow-sm">
+                              {user.card}
+                            </div>
+                          ) : (
+                            <div className="w-7 h-7 rounded-full bg-gray-200 animate-pulse" />
+                          )}
+                        </div>
                       </div>
                     </div>
                   ))}

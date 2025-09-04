@@ -172,7 +172,7 @@ const HomePage: React.FC = () => {
           </div>
           
           {/* Contact CTA */}
- <ContactInfo 
+          <ContactInfo 
             title="Still have questions?"
             description="Our support team is here to help you get the most out of Planning Poker."
             buttonText="Contact Support"
