@@ -1,26 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { FaCheck, FaRedo, FaUserFriends, FaCrown, FaSearch, FaCopy } from 'react-icons/fa';
+import { PLANNING_POKER_VALUES, CARD_COLORS } from '../utils/constants';
+import ThemeToggle from '../components/ThemeToggle';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const POKER_CARDS = [
-  // Fibonacci sequence
-  '0', '½', '1', '2', '3', '5', '8', '13', '20', '40', '100',
-  // Additional options
-  '?', '∞', '☕', '🚀'
-];
-
-const CARD_COLORS = [
-  'from-blue-500 to-blue-600',
-  'from-purple-500 to-purple-600',
-  'from-green-500 to-green-600',
-  'from-yellow-500 to-yellow-600',
-  'from-red-500 to-red-600',
-  'from-pink-500 to-pink-600',
-  'from-indigo-500 to-indigo-600',
-  'from-teal-500 to-teal-600',
-];
+const POKER_CARDS = PLANNING_POKER_VALUES;
 
 // Function to generate a consistent color from a string
 const stringToColor = (str: string): string => {
@@ -106,14 +92,14 @@ const RoomPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 text-gray-800">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-gray-100 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
-        <header className="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-200">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <header className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-4 mb-6 border border-gray-200 dark:border-gray-700 transition-colors duration-200">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-800">Sprint Poker</h1>
-              <div className="ml-4 flex items-center text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
+              <h1 className="text-2xl font-bold text-gray-800 dark:text-white">Sprint Poker</h1>
+              <div className="ml-4 flex items-center text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full transition-colors duration-200">
                 <FaUserFriends className="mr-2" />
                 <span className="font-mono">#{roomId?.toUpperCase()}</span>
                 <span className="mx-2">•</span>
@@ -121,7 +107,7 @@ const RoomPage: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex flex-wrap gap-3">
+            <div className="flex items-center justify-between gap-3">
               {isAdmin && !showVotes && (
                 <button
                   onClick={handleRevealVotes}
@@ -152,13 +138,14 @@ const RoomPage: React.FC = () => {
                 onClick={copyToClipboard}
                 className={`px-5 py-2.5 border rounded-lg font-medium transition-all duration-200 flex items-center justify-center ${
                   isCopied 
-                    ? 'bg-green-100 border-green-200 text-green-700' 
-                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+                    ? 'bg-green-100 dark:bg-green-900/30 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300' 
+                    : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
                 }`}
               >
                 <FaCopy className="mr-2" />
                 {isCopied ? 'Copied!' : 'Copy Invite Link'}
               </button>
+              <ThemeToggle />
             </div>
           </div>
         </header>
@@ -166,12 +153,12 @@ const RoomPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Players List */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-              <div className="p-4 border-b border-gray-100">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-200">
+              <div className="p-4 border-b border-gray-100 dark:border-gray-700">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-lg font-semibold text-gray-800">Participants</h2>
-                  <div className="flex items-center text-sm text-gray-500">
-                    <div className="text-sm text-gray-500">
+                  <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Participants</h2>
+                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
                       {Object.values(users).filter(u => u.card).length} of {Object.keys(users).length} voted
                     </div>
                   </div>
@@ -185,11 +172,11 @@ const RoomPage: React.FC = () => {
                     placeholder="Search participants..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   />
                 </div>
               </div>
-              <div className="divide-y divide-gray-100 max-h-[calc(100vh-300px)] overflow-y-auto">
+              <div className="divide-y divide-gray-100 dark:divide-gray-700 max-h-[calc(100vh-300px)] overflow-y-auto">
                 {Object.entries(users)
                   .filter(([_, user]) => 
                     user.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -197,7 +184,7 @@ const RoomPage: React.FC = () => {
                   .map(([id, user]) => (
                     <div 
                       key={id}
-                      className="p-3 hover:bg-gray-50 transition-colors duration-150"
+                      className="p-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors duration-150"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center min-w-0">
@@ -213,26 +200,26 @@ const RoomPage: React.FC = () => {
                             )}
                           </div>
                           <div className="ml-3 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
+                            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                               {user.name}
                             </p>
                             {user.card && showVotes && (
-                              <p className="text-xs text-gray-500">Voted: {user.card}</p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">Voted: {user.card}</p>
                             )}
                           </div>
                         </div>
                         
                         <div className="ml-2 flex-shrink-0">
                           {user.card && !showVotes ? (
-                            <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
-                              <FaCheck className="text-green-500 text-xs" />
+                            <div className="w-7 h-7 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                              <FaCheck className="text-green-500 dark:text-green-400 text-xs" />
                             </div>
                           ) : showVotes && user.card ? (
-                            <div className="px-3 py-1 bg-blue-500 text-white text-sm font-bold rounded-lg shadow-sm">
+                            <div className="px-3 py-1 bg-blue-500 dark:bg-blue-600 text-white text-sm font-bold rounded-lg shadow-sm">
                               {user.card}
                             </div>
                           ) : (
-                            <div className="w-7 h-7 rounded-full bg-gray-200 animate-pulse" />
+                            <div className="w-7 h-7 rounded-full bg-gray-200 dark:bg-gray-600 animate-pulse" />
                           )}
                         </div>
                       </div>
@@ -242,7 +229,7 @@ const RoomPage: React.FC = () => {
                 {Object.entries(users).filter(([_, user]) => 
                   user.name.toLowerCase().includes(searchQuery.toLowerCase())
                 ).length === 0 && (
-                  <div className="p-6 text-center text-gray-500 text-sm">
+                  <div className="p-6 text-center text-gray-500 dark:text-gray-400 text-sm">
                     No participants found
                   </div>
                 )}
@@ -252,13 +239,13 @@ const RoomPage: React.FC = () => {
 
           {/* Poker Cards */}
           <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors duration-200">
               <div className="p-6">
                 <div className="text-center mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800 mb-1">
+                  <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-1">
                     {showVotes ? 'Voting Results' : 'Select Your Estimate'}
                   </h2>
-                  <p className="text-gray-500">
+                  <p className="text-gray-500 dark:text-gray-400">
                     {showVotes 
                       ? 'Discuss the results with your team' 
                       : 'Choose a card to cast your vote'}
@@ -284,8 +271,8 @@ const RoomPage: React.FC = () => {
                             isSelected
                               ? `bg-gradient-to-br ${cardColor} text-white shadow-lg scale-105 border-transparent`
                               : isDisabled
-                              ? 'bg-gray-100 text-gray-300 border-transparent cursor-not-allowed'
-                              : `bg-white text-gray-800 border-gray-200 hover:border-blue-300 hover:shadow-md`
+                              ? 'bg-gray-100 dark:bg-gray-700 text-gray-300 dark:text-gray-500 border-transparent cursor-not-allowed'
+                              : `bg-white dark:bg-gray-700 text-gray-800 dark:text-white border-gray-200 dark:border-gray-600 hover:border-blue-300 dark:hover:border-blue-400 hover:shadow-md`
                           }
                         `}
                       >
@@ -297,7 +284,7 @@ const RoomPage: React.FC = () => {
 
                 {selectedCard && !showVotes && (
                   <div className="mt-8 text-center">
-                    <div className="inline-flex items-center px-5 py-2 bg-green-50 text-green-700 text-sm font-medium rounded-full border border-green-100">
+                    <div className="inline-flex items-center px-5 py-2 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium rounded-full border border-green-100 dark:border-green-800">
                       <FaCheck className="mr-2" />
                       <span>You voted: <strong>{selectedCard}</strong></span>
                     </div>
@@ -305,17 +292,17 @@ const RoomPage: React.FC = () => {
                 )}
                 
                 {showVotes && (
-                  <div className="mt-8 bg-blue-50 border border-blue-100 rounded-lg p-4">
-                    <h3 className="font-medium text-blue-800 mb-2">Voting Complete</h3>
-                    <p className="text-sm text-blue-700">
+                  <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-lg p-4">
+                    <h3 className="font-medium text-blue-800 dark:text-blue-200 mb-2">Voting Complete</h3>
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
                       {selectedCard 
                         ? `You voted: ${selectedCard}`
                         : 'You did not vote in this round.'
                       }
                     </p>
                     {isAdmin && (
-                      <div className="mt-3 pt-3 border-t border-blue-100">
-                        <p className="text-xs text-blue-600 mb-2">As the moderator, you can start a new round or reset all votes.</p>
+                      <div className="mt-3 pt-3 border-t border-blue-100 dark:border-blue-800">
+                        <p className="text-xs text-blue-600 dark:text-blue-400 mb-2">As the moderator, you can start a new round or reset all votes.</p>
                       </div>
                     )}
                   </div>
@@ -337,6 +324,8 @@ const RoomPage: React.FC = () => {
           draggable
           pauseOnHover
           theme="light"
+          toastClassName="dark:bg-gray-800 dark:text-white"
+          progressClassName="dark:bg-blue-500"
         />
       </div>
     </div>
