@@ -1,62 +1,321 @@
-import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { FaCheck, FaRedo, FaUserFriends, FaUserSecret, FaCrown, FaSearch, FaUsers, FaCopy } from 'react-icons/fa';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const POKER_CARDS = [
+  // Fibonacci sequence
+  '0', '½', '1', '2', '3', '5', '8', '13', '20', '40', '100',
+  // Additional options
+  '?', '∞', '☕', '🚀'
+];
+
+const CARD_COLORS = [
+  'from-blue-500 to-blue-600',
+  'from-purple-500 to-purple-600',
+  'from-green-500 to-green-600',
+  'from-yellow-500 to-yellow-600',
+  'from-red-500 to-red-600',
+  'from-pink-500 to-pink-600',
+  'from-indigo-500 to-indigo-600',
+  'from-teal-500 to-teal-600',
+];
 
 const RoomPage: React.FC = () => {
   const { roomId } = useParams<{ roomId: string }>();
-  const [username, setUsername] = useState('');
+  const location = useLocation();
   const navigate = useNavigate();
+  const [username, setUsername] = useState('Player 1');
+  const [users, setUsers] = useState<{ [key: string]: { name: string; card: string | null; isSpectator?: boolean } }>({});
+  const [selectedCard, setSelectedCard] = useState<string | null>(null);
+  const [showVotes, setShowVotes] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isCopied, setIsCopied] = useState(false);
 
-  const handleJoinRoom = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (username.trim()) {
-      navigate(`/room/${roomId}`, { state: { username } });
-    }
+  // Add some mock users for testing
+  useEffect(() => {
+    const mockUsers = {
+      '1': { name: 'You', card: selectedCard, isSpectator: false },
+      '2': { name: 'Alex', card: '8', isSpectator: false },
+      '3': { name: 'Jordan', card: '13', isSpectator: false },
+      '4': { name: 'Taylor', card: '5', isSpectator: false },
+      '5': { name: 'Casey', card: '?', isSpectator: false },
+      '6': { name: 'Sam', card: null, isSpectator: true },
+      '7': { name: 'Sandro', card: null, isSpectator: false },  
+    };
+    setUsers(mockUsers);
+  }, [selectedCard]);
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setIsCopied(true);
+    toast.success('Link copied to clipboard!');
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
+  const handleNewRound = () => {
+    setShowVotes(false);
+    setSelectedCard(null);
+    // In a real app, you would also reset votes in the database
+  };
+
+  const handleRevealVotes = () => {
+    setShowVotes(true);
+  };
+
+  const handleResetVotes = () => {
+    setShowVotes(false);
+    setSelectedCard(null);
+    // In a real app, you would reset all votes in the database
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="max-w-md mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-xl shadow-md p-8">
-          <h1 className="text-2xl font-bold text-center text-gray-900 mb-8">
-            Join Room: {roomId}
-          </h1>
-          
-          <form onSubmit={handleJoinRoom} className="space-y-6">
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                Your Name
-              </label>
-              <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Enter your name"
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-indigo-500 focus:border-indigo-500"
-                required
-              />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 text-gray-800">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Header */}
+        <header className="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-200">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="flex items-center">
+              <h1 className="text-2xl font-bold text-gray-800">Sprint Poker</h1>
+              <div className="ml-4 flex items-center text-sm bg-blue-50 text-blue-700 px-3 py-1 rounded-full">
+                <FaUserFriends className="mr-2" />
+                <span className="font-mono">#{roomId?.toUpperCase()}</span>
+                <span className="mx-2">•</span>
+                <span>{Object.values(users).filter(u => !u.isSpectator).length} Players</span>
+                {Object.values(users).some(u => u.isSpectator) && (
+                  <span className="ml-2 text-blue-500">
+                    +{Object.values(users).filter(u => u.isSpectator).length} Spectators
+                  </span>
+                )}
+              </div>
             </div>
             
-            <button
-              type="submit"
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Join Room
-            </button>
-          </form>
-          
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-600">
-              Want to create a different room?{' '}
+            <div className="flex flex-wrap gap-3">
+              {isAdmin && !showVotes && (
+                <button
+                  onClick={handleRevealVotes}
+                  className="px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow hover:shadow-md transition-all duration-200 flex items-center justify-center"
+                >
+                  <FaCheck className="mr-2" /> Show Votes
+                </button>
+              )}
+              
+              {isAdmin && showVotes && (
+                <>
+                  <button
+                    onClick={handleNewRound}
+                    className="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow hover:shadow-md transition-all duration-200 flex items-center justify-center"
+                  >
+                    <FaRedo className="mr-2" /> New Round
+                  </button>
+                  <button
+                    onClick={handleResetVotes}
+                    className="px-5 py-2.5 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg shadow hover:shadow-md transition-all duration-200 flex items-center justify-center"
+                  >
+                    <FaRedo className="mr-2" /> Reset All
+                  </button>
+                </>
+              )}
+              
               <button
-                onClick={() => navigate('/')}
-                className="font-medium text-indigo-600 hover:text-indigo-500"
+                onClick={copyToClipboard}
+                className={`px-5 py-2.5 border rounded-lg font-medium transition-all duration-200 flex items-center justify-center ${
+                  isCopied 
+                    ? 'bg-green-100 border-green-200 text-green-700' 
+                    : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+                }`}
               >
-                Go back
+                <FaCopy className="mr-2" />
+                {isCopied ? 'Copied!' : 'Copy Invite Link'}
               </button>
-            </p>
+            </div>
+          </div>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Players List */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-4 border-b border-gray-100">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-lg font-semibold text-gray-800">Participants</h2>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <FaUsers className="mr-1" />
+                    <span>{Object.values(users).filter(u => !u.isSpectator).length}/{Object.values(users).length}</span>
+                  </div>
+                </div>
+                <div className="mt-3 relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FaSearch className="h-4 w-4 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search participants..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  />
+                </div>
+              </div>
+              <div className="divide-y divide-gray-100 max-h-[calc(100vh-300px)] overflow-y-auto">
+                {Object.entries(users)
+                  .filter(([_, user]) => 
+                    user.name.toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .map(([id, user], index) => (
+                    <div 
+                      key={id}
+                      className={`p-3 hover:bg-gray-50 transition-colors duration-150 ${user.isSpectator ? 'opacity-70' : ''}`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center min-w-0">
+                          <div className={`relative flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-white font-medium shadow-inner ${
+                            CARD_COLORS[index % CARD_COLORS.length]
+                          }`}>
+                            {user.name.charAt(0).toUpperCase()}
+                            {isAdmin && id === '1' && (
+                              <div className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 rounded-full p-0.5">
+                                <FaCrown className="w-2.5 h-2.5" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="ml-3 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {user.name}
+                              {user.isSpectator && (
+                                <span className="ml-1.5 px-1.5 py-0.5 text-xs font-normal bg-gray-100 text-gray-500 rounded-full">
+                                  Spectator
+                                </span>
+                              )}
+                            </p>
+                            {user.card && showVotes && (
+                              <p className="text-xs text-gray-500">Voted: {user.card}</p>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {!user.isSpectator && (
+                          <div className="ml-2 flex-shrink-0">
+                            {user.card && !showVotes ? (
+                              <div className="w-7 h-7 rounded-full bg-green-100 flex items-center justify-center">
+                                <FaCheck className="text-green-500 text-xs" />
+                              </div>
+                            ) : showVotes && user.card ? (
+                              <div className="px-3 py-1 bg-blue-500 text-white text-sm font-bold rounded-lg shadow-sm">
+                                {user.card}
+                              </div>
+                            ) : !showVotes ? (
+                              <div className="w-7 h-7 rounded-full bg-gray-200 animate-pulse" />
+                            ) : (
+                              <div className="text-xs text-gray-400">No vote</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                
+                {Object.entries(users).filter(([_, user]) => 
+                  user.name.toLowerCase().includes(searchQuery.toLowerCase())
+                ).length === 0 && (
+                  <div className="p-6 text-center text-gray-500 text-sm">
+                    No participants found
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Poker Cards */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-6">
+                <div className="text-center mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-1">
+                    {showVotes ? 'Voting Results' : 'Select Your Estimate'}
+                  </h2>
+                  <p className="text-gray-500">
+                    {showVotes 
+                      ? 'Discuss the results with your team' 
+                      : 'Choose a card to cast your vote'}
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-3">
+                  {POKER_CARDS.map((card, index) => {
+                    const isSelected = selectedCard === card;
+                    const isDisabled = showVotes && !isSelected;
+                    const cardColor = CARD_COLORS[index % CARD_COLORS.length];
+                    
+                    return (
+                      <button
+                        key={card}
+                        onClick={() => !showVotes && setSelectedCard(card)}
+                        disabled={isDisabled}
+                        className={`
+                          aspect-[2/3] flex items-center justify-center text-2xl font-bold rounded-lg
+                          transition-all duration-200 transform hover:scale-105
+                          border-2
+                          ${
+                            isSelected
+                              ? `bg-gradient-to-br ${cardColor} text-white shadow-lg scale-105 border-transparent`
+                              : isDisabled
+                              ? 'bg-gray-100 text-gray-300 border-transparent cursor-not-allowed'
+                              : `bg-white text-gray-800 border-gray-200 hover:border-blue-300 hover:shadow-md`
+                          }
+                        `}
+                      >
+                        {card}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {selectedCard && !showVotes && (
+                  <div className="mt-8 text-center">
+                    <div className="inline-flex items-center px-5 py-2 bg-green-50 text-green-700 text-sm font-medium rounded-full border border-green-100">
+                      <FaCheck className="mr-2" />
+                      <span>You voted: <strong>{selectedCard}</strong></span>
+                    </div>
+                  </div>
+                )}
+                
+                {showVotes && (
+                  <div className="mt-8 bg-blue-50 border border-blue-100 rounded-lg p-4">
+                    <h3 className="font-medium text-blue-800 mb-2">Voting Complete</h3>
+                    <p className="text-sm text-blue-700">
+                      {selectedCard 
+                        ? `You voted: ${selectedCard}`
+                        : 'You did not vote in this round.'
+                      }
+                    </p>
+                    {isAdmin && (
+                      <div className="mt-3 pt-3 border-t border-blue-100">
+                        <p className="text-xs text-blue-600 mb-2">As the moderator, you can start a new round or reset all votes.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
+
+        {/* Toast Notifications */}
+        <ToastContainer 
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
       </div>
     </div>
   );

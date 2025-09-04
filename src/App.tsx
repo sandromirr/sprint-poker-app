@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 
-// Import your page components
 import HomePage from './pages/HomePage';
 import RoomPage from './pages/RoomPage';
 import JoinRoomPage from './pages/JoinRoomPage';
@@ -15,6 +14,7 @@ function App() {
           <Routes>
             {/* Public routes */}
             <Route path="/" element={<HomePage />} />
+
             <Route path="/join/:roomId" element={<JoinRoomPage />} />
             <Route path="/room/:roomId" element={<RoomPage />} />
             
