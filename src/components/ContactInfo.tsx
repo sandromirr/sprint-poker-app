@@ -16,7 +16,7 @@ const ContactInfo: React.FC<ContactInfoProps> = ({
   emailText = "Or email us at"
 }) => {
   return (
-    <div className="bg-gradient-to-r from-indigo-500 to-purple-600 dark:from-indigo-700 dark:to-purple-800 px-8 py-12 text-center text-white">
+    <div className="bg-gradient-to-r from-indigo-500 to-purple-600 dark:from-indigo-700 dark:to-purple-800 px-8 py-12 text-center text-white mt-10 rounded-2xl">
       <div className="max-w-2xl mx-auto">
         <h3 className="text-2xl font-bold mb-4">{title}</h3>
         <p className="text-indigo-100 dark:text-indigo-200 text-lg mb-8">{description}</p>
