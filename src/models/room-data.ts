@@ -1,5 +1,5 @@
 export interface RoomData {
-  token: string;
+  roomId: string;
   status: number;
   expireDate: Date;
 }

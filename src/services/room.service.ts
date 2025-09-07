@@ -1,13 +1,12 @@
-import { ID } from '../lib/appwrite';
+import { ID, Query } from '../lib/appwrite';
 import { Database } from '../lib/appwrite';
 import { RoomStatus } from '../models/room-status';
 import type { RoomData } from '../models/room-data';
 import type { UserData } from '../models/user-data';
 import appwriteConfig from '../config/appwrite';
-import { generateToken } from '../helpers/token';
 
 export const createRoom = async (username: string) => {
-  const token = generateToken();
+  const token = ID.unique();
   const roomId = ID.unique();
   const userId = ID.unique();
 
@@ -15,7 +14,7 @@ export const createRoom = async (username: string) => {
   expireDate.setDate(expireDate.getDate() + 30);
   
   const room: RoomData = {
-    token,
+    roomId: token,
     status: RoomStatus.Waiting,
     expireDate
   };
@@ -40,4 +39,28 @@ export const createRoom = async (username: string) => {
   );
 
   return { roomId, userId };
+};
+
+export const checkRoom = async (roomId: string) => {
+  try {
+    const rooms = await Database.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.collectionIds.rooms,
+      [Query.equal('roomId', roomId)]
+    );
+
+    if(rooms.total == 0) {
+      return false;
+    }
+
+    const room = rooms.documents[0];
+
+    if (new Date(room.expireDate) < new Date()) {
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    return false;
+  }
 };

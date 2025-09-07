@@ -10,8 +10,10 @@ import CreateRoomForm from '../components/CreateRoomForm';
 import JoinRoomForm from '../components/JoinRoomForm';
 import type { StatItem } from '../models/stat-item';
 import { fetchStats } from '../services/stats.service';
-import { createRoom } from '../services/room.service';
+import { checkRoom, createRoom } from '../services/room.service';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const HomePage: React.FC = () => {
   const [stats, setStats] = useState<StatItem[]>([]);
@@ -45,8 +47,13 @@ const HomePage: React.FC = () => {
     }
   };
 
-  const handleJoinRoom = (roomId: string) => {
-    console.log('Joining room:', roomId);
+  const handleJoinRoom = async (roomId: string) => {
+    const exists = await checkRoom(roomId);
+    if (exists) {
+      navigate(`/join/${roomId}`);
+    } else {
+      toast.error('Room not found. Please check the room ID and try again.');
+    }
   };
 
   return (
@@ -81,6 +88,7 @@ const HomePage: React.FC = () => {
 
         <Footer appName="Planning Poker App" />
       </div>
+      <ToastContainer position="bottom-right" autoClose={3000} />
     </div>
   );
 };
