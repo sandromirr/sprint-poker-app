@@ -75,11 +75,11 @@ const RoomPage: React.FC = () => {
     setShowVotes(true);
   };
 
-  const handleResetVotes = () => {
-    setShowVotes(false);
-    setSelectedCard(null);
-    // In a real app, you would reset all votes in the database
-  };
+  // const handleResetVotes = () => {
+  //   setShowVotes(false);
+  //   setSelectedCard(null);
+  //   // In a real app, you would reset all votes in the database
+  // };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-gray-100 transition-colors duration-200">
