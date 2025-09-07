@@ -5,7 +5,7 @@ import Header from '../components/Header';
 import StatsGrid from '../components/StatsGrid';
 import Footer from '../components/Footer';
 import ContactInfo from '../components/ContactInfo';
-import FaqSection from '../components/FAQSection';
+import FaqSection from '../components/FaqSection';
 import CreateRoomForm from '../components/CreateRoomForm';
 import JoinRoomForm from '../components/JoinRoomForm';
 
