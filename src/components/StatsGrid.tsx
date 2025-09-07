@@ -9,9 +9,31 @@ interface StatItem {
 
 interface StatsGridProps {
   stats: StatItem[];
+  loading?: boolean;
 }
 
-const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
+const StatsGrid: React.FC<StatsGridProps> = ({ stats, loading = false }) => {
+  if (loading) {
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+        {[1, 2, 3, 4].map((id) => (
+          <div 
+            key={id} 
+            className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm animate-pulse"
+          >
+            <div className="flex items-center">
+              <div className="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-700 mr-4"></div>
+              <div className="space-y-2 flex-1">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
       {stats.map((stat) => (
@@ -25,7 +47,9 @@ const StatsGrid: React.FC<StatsGridProps> = ({ stats }) => {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{stat.name}</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {stat.value}
+              </p>
             </div>
           </div>
         </div>

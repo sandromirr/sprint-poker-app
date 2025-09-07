@@ -5,7 +5,6 @@ interface PokerCardComponentProps {
   selectedCard: string | null;
   setSelectedCard: (card: string | null) => void;
   showVotes: boolean;
-  isAdmin: boolean;
 }
 
 const POKER_CARDS = [
@@ -33,7 +32,6 @@ const PokerCardComponent: React.FC<PokerCardComponentProps> = ({
   selectedCard,
   setSelectedCard,
   showVotes,
-  isAdmin
 }) => {
   return (
     <div className="lg:col-span-2">
@@ -98,7 +96,7 @@ const PokerCardComponent: React.FC<PokerCardComponentProps> = ({
                   : 'You did not vote in this round.'
                 }
               </p>
-              {isAdmin && (
+              {(
                 <div className="mt-3 pt-3 border-t border-blue-100 dark:border-blue-800">
                   <p className="text-xs text-blue-600 dark:text-blue-400 mb-2">As the moderator, you can start a new round or reset all votes.</p>
                 </div>

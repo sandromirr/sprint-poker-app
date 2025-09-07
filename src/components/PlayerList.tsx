@@ -12,15 +12,13 @@ interface PlayerListProps {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   showVotes: boolean;
-  isAdmin: boolean;
 }
 
 const PlayerList: React.FC<PlayerListProps> = ({
   users,
   searchQuery,
   setSearchQuery,
-  showVotes,
-  isAdmin
+  showVotes
 }) => {
   return (
     <div className="lg:col-span-1">
@@ -64,7 +62,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
                       style={{ backgroundColor: user.color }}
                     >
                       {user.name.charAt(0).toUpperCase()}
-                      {isAdmin && id === '1' && (
+                      {id === '1' && (
                         <div className="absolute -top-1 -right-1 bg-yellow-400 text-yellow-900 rounded-full p-0.5">
                           <FaCrown className="w-2.5 h-2.5" />
                         </div>

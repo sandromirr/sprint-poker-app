@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PLANNING_POKER_VALUES } from '../utils/constants';
 import CardValuesPreview from '../components/CardValuesPreview';
 import Header from '../components/Header';
@@ -8,27 +8,41 @@ import ContactInfo from '../components/ContactInfo';
 import FaqSection from '../components/FaqSection';
 import CreateRoomForm from '../components/CreateRoomForm';
 import JoinRoomForm from '../components/JoinRoomForm';
+import type { StatItem } from '../models/stat-item';
+import { fetchStats } from '../services/stats.service';
+import { createRoom } from '../services/room.service';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
+  const [stats, setStats] = useState<StatItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
   const planningPokerValues = PLANNING_POKER_VALUES;
+  const navigate = useNavigate();
 
-  const stats = [
-    { id: 1, name: 'Active Rooms', value: '24', icon: '🏠' },
-    { id: 2, name: 'Total Users', value: '156', icon: '👥' },
-    { id: 3, name: 'Estimates Today', value: '42', icon: '📊' },
-    { id: 4, name: 'Cards Played', value: '1,248', icon: '🃏' },
-  ];
-
-  const handleCreateRoom = (username: string) => {
-    const roomId = crypto.randomUUID();
-    
-    const room = {
-      id: roomId,
-      name: username,
-      createdAt: new Date(),
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        setIsLoading(true);
+        const statsData = await fetchStats();
+        setStats(statsData);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
-    
-    console.log(room);
+
+    loadStats();
+  }, []);
+
+  const handleCreateRoom = async (username: string) => {
+    try {
+      const { roomId } = await createRoom(username);
+      navigate(`/room/${roomId}`);
+    } catch (error) {
+      console.error('Error creating room:', error);
+    }
   };
 
   const handleJoinRoom = (roomId: string) => {
@@ -48,7 +62,10 @@ const HomePage: React.FC = () => {
           <JoinRoomForm onJoin={handleJoinRoom} />
         </div>
 
-        <StatsGrid stats={stats} />
+        <StatsGrid 
+          stats={stats} 
+          loading={isLoading} 
+        />
 
         <CardValuesPreview values={planningPokerValues} />
 

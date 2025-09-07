@@ -11,7 +11,6 @@ interface User {
 interface RoomHeaderProps {
   roomId: string | undefined;
   users: { [key: string]: User };
-  isAdmin: boolean;
   showVotes: boolean;
   isCopied: boolean;
   handleRevealVotes: () => void;
@@ -22,7 +21,6 @@ interface RoomHeaderProps {
 const RoomHeader: React.FC<RoomHeaderProps> = ({
   roomId,
   users,
-  isAdmin,
   showVotes,
   isCopied,
   handleRevealVotes,
@@ -43,7 +41,7 @@ const RoomHeader: React.FC<RoomHeaderProps> = ({
         </div>
         
         <div className="flex items-center justify-between gap-3">
-          {isAdmin && !showVotes && (
+          {!showVotes && (
             <button
               onClick={handleRevealVotes}
               className="px-5 py-2.5 bg-green-500 hover:bg-green-600 text-white font-medium rounded-lg shadow hover:shadow-md transition-all duration-200 flex items-center justify-center"
@@ -52,7 +50,7 @@ const RoomHeader: React.FC<RoomHeaderProps> = ({
             </button>
           )}
           
-          {isAdmin && showVotes && (
+          {showVotes && (
             <button
               onClick={handleNewRound}
               className="px-5 py-2.5 bg-blue-500 hover:bg-blue-600 text-white font-medium rounded-lg shadow hover:shadow-md transition-all duration-200 flex items-center justify-center"
