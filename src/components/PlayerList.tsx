@@ -1,14 +1,9 @@
 import React from 'react';
 import { FaSearch, FaCheck, FaCrown } from 'react-icons/fa';
-
-interface User {
-  name: string;
-  card: string | null;
-  color: string;
-}
+import type { RoomUser } from '../models/room-user';
 
 interface PlayerListProps {
-  users: { [key: string]: User };
+  users: { [key: string]: RoomUser };
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   showVotes: boolean;
@@ -28,7 +23,7 @@ const PlayerList: React.FC<PlayerListProps> = ({
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white">Participants</h2>
             <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
               <div className="text-sm text-gray-500 dark:text-gray-400">
-                {Object.values(users).filter(u => u.card).length} of {Object.keys(users).length} voted
+                {Object.values(users).filter(u => u.score).length} of {Object.keys(users).length} voted
               </div>
             </div>
           </div>
@@ -72,20 +67,20 @@ const PlayerList: React.FC<PlayerListProps> = ({
                       <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                         {user.name}
                       </p>
-                      {user.card && showVotes && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400">Voted: {user.card}</p>
+                      {user.score && showVotes && (
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Voted: {user.score}</p>
                       )}
                     </div>
                   </div>
                   
                   <div className="ml-2 flex-shrink-0">
-                    {user.card && !showVotes ? (
+                    {user.score && !showVotes ? (
                       <div className="w-7 h-7 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                         <FaCheck className="text-green-500 dark:text-green-400 text-xs" />
                       </div>
-                    ) : showVotes && user.card ? (
+                    ) : showVotes && user.score ? (
                       <div className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 text-sm font-medium rounded-full">
-                        {user.card}
+                        {user.score}
                       </div>
                     ) : null}
                   </div>

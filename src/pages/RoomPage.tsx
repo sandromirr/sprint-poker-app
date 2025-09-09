@@ -5,15 +5,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import PlayerList from '../components/PlayerList';
 import PokerCardComponent from '../components/PokerCardComponent';
 import RoomHeader from '../components/RoomHeader';
-import { getUsersByRoomId } from '../services/user.service';
+import { subscribeUsersInRoom } from '../services/user.service';
+import type { RoomUser } from '../models/room-user';
 
 const RoomPage: React.FC = () => {
   const { roomId } = useParams<{ roomId: string }>();
-  const [users, setUsers] = useState<{ [key: string]: { 
-    name: string; 
-    card: string | null; 
-    color: string;
-  } }>({});
+  
+  const [users, setUsers] = useState<{ [key: string]: RoomUser }>({});
   
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [showVotes, setShowVotes] = useState(false);
@@ -21,23 +19,18 @@ const RoomPage: React.FC = () => {
   const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
-    const loadUsers = async () => {
-      try {
-        const usersData = await getUsersByRoomId(roomId!);
-        setUsers(usersData.reduce((acc, user) => {
-          acc[user.id] = {
-            name: user.name,
-            card: user.card,
-            color: user.color
-          };
+    let unsubscribe: (() => void) | undefined;
+    (async () => {
+      if (!roomId) return;
+      unsubscribe = await subscribeUsersInRoom(roomId, (list) => {
+        const next = list.reduce((acc, user) => {
+          acc[user.id] = { id: user.id, name: user.name, score: user.score, color: user.color };
           return acc;
-        }, {} as { [key: string]: { name: string; card: string | null; color: string; } }));
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      }
-    };
-    loadUsers();
-    
+        }, {} as { [key: string]: RoomUser });
+        setUsers(next);
+      });
+    })();
+    return () => { if (unsubscribe) unsubscribe(); };
   }, [roomId]);
 
   const copyToClipboard = () => {
@@ -55,7 +48,6 @@ const RoomPage: React.FC = () => {
   const handleRevealVotes = () => {
     setShowVotes(true);
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-800 dark:text-gray-100 transition-colors duration-200">

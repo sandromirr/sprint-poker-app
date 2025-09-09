@@ -6,7 +6,6 @@ import type { UserData } from '../models/user-data';
 import appwriteConfig from '../config/appwrite';
 
 export const createRoom = async (username: string) => {
-  const token = ID.unique();
   const roomId = ID.unique();
   const userId = ID.unique();
 
@@ -14,14 +13,15 @@ export const createRoom = async (username: string) => {
   expireDate.setDate(expireDate.getDate() + 30);
   
   const room: RoomData = {
-    roomId: token,
+    roomId: roomId,
     status: RoomStatus.Waiting,
     expireDate
   };
 
   const user: UserData = {
     roomId,
-    username
+    username,
+    score: null
   };
   
   await Database.createDocument(

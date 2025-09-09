@@ -1,14 +1,24 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createUser } from '../services/user.service';
 
 const JoinRoomPage: React.FC = () => {
   const [roomId, setRoomId] = useState('');
   const [username, setUsername] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const roomId = window.location.pathname.split('/').pop();
+    if (roomId) {
+      setRoomId(roomId);
+    }
+    console.log(roomId)
+  }, []);
+
   const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();
     if (roomId.trim() && username.trim()) {
+      createUser(roomId, username);
       navigate(`/room/${roomId}`, { state: { username } });
     }
   };
