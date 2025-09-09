@@ -1,16 +1,11 @@
 import React from 'react';
 import { FaUserFriends, FaRedo, FaCopy, FaCheck } from 'react-icons/fa';
 import ThemeToggle from './ThemeToggle';
-
-interface User {
-  name: string;
-  card: string | null;
-  color: string;
-}
+import type { RoomUser } from '../models/room-user';
 
 interface RoomHeaderProps {
   roomId: string | undefined;
-  users: { [key: string]: User };
+  users: { [key: string]: RoomUser };
   showVotes: boolean;
   isCopied: boolean;
   handleRevealVotes: () => void;

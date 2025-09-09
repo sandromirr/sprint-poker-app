@@ -5,20 +5,25 @@ import 'react-toastify/dist/ReactToastify.css';
 import PlayerList from '../components/PlayerList';
 import PokerCardComponent from '../components/PokerCardComponent';
 import RoomHeader from '../components/RoomHeader';
-import { subscribeUsersInRoom } from '../services/user.service';
+import { resetUsersScore, subscribeUsersInRoom, updateUserScore } from '../services/user.service';
 import type { RoomUser } from '../models/room-user';
+import { LocalStorageManager } from '../utils/storage';
+import { createVote } from '../services/vote.service';
 
 const RoomPage: React.FC = () => {
   const { roomId } = useParams<{ roomId: string }>();
-  
   const [users, setUsers] = useState<{ [key: string]: RoomUser }>({});
-  
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [showVotes, setShowVotes] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isCopied, setIsCopied] = useState(false);
+  const [userId, setUserId] = useState('');
 
   useEffect(() => {
+    const sessionData = LocalStorageManager.getData();
+    if (sessionData) {
+      setUserId(sessionData.userId);
+    }
     let unsubscribe: (() => void) | undefined;
     (async () => {
       if (!roomId) return;
@@ -40,13 +45,20 @@ const RoomPage: React.FC = () => {
     setTimeout(() => setIsCopied(false), 2000);
   };
 
-  const handleNewRound = () => {
+  const handleNewRound = async () => {
     setShowVotes(false);
     setSelectedCard(null);
+    await resetUsersScore(roomId!);
   };
 
   const handleRevealVotes = () => {
     setShowVotes(true);
+  };
+
+  const onSelectCard = async (score: string | null) => {
+    setSelectedCard(score);
+    await updateUserScore(userId, score!);
+    await createVote(userId, roomId!, score!);
   };
 
   return (
@@ -75,7 +87,7 @@ const RoomPage: React.FC = () => {
           {/* Poker Cards */}
           <PokerCardComponent 
             selectedCard={selectedCard}
-            setSelectedCard={setSelectedCard}
+            setSelectedCard={(card) => onSelectCard(card)}
             showVotes={showVotes}
           />
         </div>

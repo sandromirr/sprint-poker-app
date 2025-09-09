@@ -1,15 +1,14 @@
 import React from 'react';
 import { FaCheck } from 'react-icons/fa';
+import { PLANNING_POKER_VALUES } from '../utils/constants';
 
 interface PokerCardComponentProps {
   selectedCard: string | null;
-  setSelectedCard: (card: string | null) => void;
+  setSelectedCard: (score: string | null) => void;
   showVotes: boolean;
 }
 
-const POKER_CARDS = [
-  '0', '½', '1', '2', '3', '5', '8', '13', '20', '40', '100', '?', '∞', '☕'
-];
+const POKER_CARDS = PLANNING_POKER_VALUES;
 
 const CARD_COLORS = [
   'from-blue-500 to-blue-600',
@@ -49,7 +48,7 @@ const PokerCardComponent: React.FC<PokerCardComponentProps> = ({
           </div>
           
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8 gap-3">
-            {POKER_CARDS.map((card, index) => {
+            {POKER_CARDS.map((card: string, index: number) => {
               const isSelected = selectedCard === card;
               const isDisabled = showVotes && !isSelected;
               const cardColor = CARD_COLORS[index % CARD_COLORS.length];

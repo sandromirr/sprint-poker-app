@@ -37,7 +37,7 @@ export const createRoom = async (username: string) => {
     userId,
     user
   );
-
+  
   return { roomId, userId };
 };
 

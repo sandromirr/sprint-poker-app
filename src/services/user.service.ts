@@ -100,3 +100,40 @@ export const createUser = async (roomId: string, username: string): Promise<stri
     throw error;
   }
 };
+
+export const resetUsersScore = async (roomId: string): Promise<void> => {
+  try{
+    const response = await Database.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.collectionIds.users,
+      [Query.equal('roomId', roomId)]
+    );
+
+    const updatePromises = response.documents.map(doc => 
+      Database.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.collectionIds.users,
+        doc.$id,
+        { score: null }
+      )
+    );
+    await Promise.all(updatePromises);
+  } catch (error) {
+    console.error('Error resetting user scores:', error);
+    throw error;
+  }
+};
+
+export const updateUserScore = async (userId: string, score: string): Promise<void> => {
+  try {
+    await Database.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.collectionIds.users,
+      userId,
+      { score }
+    );
+  } catch (error) {
+    console.error('Error updating user score:', error);
+    throw error;
+  }
+};
