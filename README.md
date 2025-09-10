@@ -2,8 +2,6 @@
 
 A real-time planning poker application for agile teams to estimate story points collaboratively. Built with React, TypeScript, and Appwrite.
 
-![Sprint Poker Demo](https://via.placeholder.com/800x400.png?text=Sprint+Poker+Demo)
-
 ## ✨ Features
 
 - 🎴 Real-time voting with planning poker cards
