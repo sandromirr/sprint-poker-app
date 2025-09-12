@@ -50,8 +50,6 @@ export const subscribeUsersInRoom = async (
       const payload: any = res?.payload;
       if (!payload) return;
       if (payload.roomId !== roomId) return; // filter by room
-
-      console.log(payload)
       
       const docId: string | undefined = payload.$id;
       const username: string | undefined = payload.username;
@@ -84,13 +82,23 @@ export const subscribeUsersInRoom = async (
 
 export const createUser = async (roomId: string, username: string): Promise<string> => {
   try {
+
+    const userId = await getUserIdInRoom(roomId, username);
+
+    if(userId !== null)
+    {
+      return userId;
+    }
+
+    const online = true;
     const response = await Database.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.collectionIds.users,
       ID.unique(),
       {
         roomId,
-        username
+        username,
+        online
       }
     );
     
@@ -98,6 +106,24 @@ export const createUser = async (roomId: string, username: string): Promise<stri
   } catch (error) {
     console.error('Error creating user:', error);
     throw error;
+  }
+};
+
+export const getUserIdInRoom = async (roomId: string, username: string): Promise<string | null> => {
+  try {
+    const response = await Database.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.collectionIds.users,
+      [
+        Query.equal('roomId', roomId),
+        Query.equal('username', username)
+      ]
+    );
+    const first = response.documents?.[0];
+    return first ? first.$id : null;
+  } catch (error) {
+    console.error('Error getting user id in room:', error);
+    return null;
   }
 };
 
@@ -114,7 +140,7 @@ export const resetUsersScore = async (roomId: string): Promise<void> => {
         appwriteConfig.databaseId,
         appwriteConfig.collectionIds.users,
         doc.$id,
-        { score: null }
+        { score: null, online: false }
       )
     );
     await Promise.all(updatePromises);
@@ -130,10 +156,24 @@ export const updateUserScore = async (userId: string, score: string): Promise<vo
       appwriteConfig.databaseId,
       appwriteConfig.collectionIds.users,
       userId,
-      { score }
+      { score: score, online: true }
     );
   } catch (error) {
     console.error('Error updating user score:', error);
     throw error;
+  }
+};
+
+export const setUserOnlineStatus = async (userId: string, online: boolean): Promise<void> => {
+  try {
+    await Database.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.collectionIds.users,
+      userId,
+      { online }
+    );
+  } catch (error) {
+    console.error('Error updating user online status:', error);
+    // Best-effort; don't rethrow to avoid breaking callers on visibility change
   }
 };

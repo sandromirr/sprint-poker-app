@@ -5,25 +5,24 @@ import 'react-toastify/dist/ReactToastify.css';
 import PlayerList from '../components/PlayerList';
 import PokerCardComponent from '../components/PokerCardComponent';
 import RoomHeader from '../components/RoomHeader';
-import { resetUsersScore, subscribeUsersInRoom, updateUserScore } from '../services/user.service';
+import { resetUsersScore, subscribeUsersInRoom, updateUserScore, setUserOnlineStatus } from '../services/user.service';
 import type { RoomUser } from '../models/room-user';
-import { LocalStorageManager } from '../utils/storage';
 import { createVote } from '../services/vote.service';
+import { subscribeRoomData, updateRoomStatus } from '../services/room.service';
+import { RoomStatus } from '../models';
+import type { RoomData } from '../models/room-data';
 
 const RoomPage: React.FC = () => {
-  const { roomId } = useParams<{ roomId: string }>();
+  const { roomId, userId } = useParams<{ roomId: string, userId: string }>();
   const [users, setUsers] = useState<{ [key: string]: RoomUser }>({});
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [showVotes, setShowVotes] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isCopied, setIsCopied] = useState(false);
-  const [userId, setUserId] = useState('');
+  const [roomData, setRoomData] = useState<RoomData | null>(null);
+  void roomData; // referenced to avoid unused variable warning; updates drive other state
 
   useEffect(() => {
-    const sessionData = LocalStorageManager.getData();
-    if (sessionData) {
-      setUserId(sessionData.userId);
-    }
     let unsubscribe: (() => void) | undefined;
     (async () => {
       if (!roomId) return;
@@ -38,8 +37,29 @@ const RoomPage: React.FC = () => {
     return () => { if (unsubscribe) unsubscribe(); };
   }, [roomId]);
 
+  // Subscribe to realtime room data
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    (async () => {
+      if (!roomId) return;
+      unsubscribe = await subscribeRoomData(roomId, (room) => {
+        console.log('room updated', room)
+        setRoomData(room);
+        if(room.status == RoomStatus.Revealed){
+          setShowVotes(room.status == RoomStatus.Revealed);
+        }else{
+          setSelectedCard(null);
+          setShowVotes(room.status == RoomStatus.Revealed);
+        }
+      });
+    })();
+    return () => { if (unsubscribe) unsubscribe(); };
+  }, [roomId]);
+
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(window.location.href);
+    const link = window.location.href.replace("room","join").split('/');
+    link.pop();
+    navigator.clipboard.writeText(link.join('/'));
     setIsCopied(true);
     toast.success('Link copied to clipboard!');
     setTimeout(() => setIsCopied(false), 2000);
@@ -49,16 +69,18 @@ const RoomPage: React.FC = () => {
     setShowVotes(false);
     setSelectedCard(null);
     await resetUsersScore(roomId!);
+    await updateRoomStatus(roomId!, RoomStatus.Voting);
   };
 
-  const handleRevealVotes = () => {
+  const handleRevealVotes = async () => {
     setShowVotes(true);
+    await updateRoomStatus(roomId!, RoomStatus.Revealed);
   };
 
   const onSelectCard = async (score: string | null) => {
     setSelectedCard(score);
-    await updateUserScore(userId, score!);
-    await createVote(userId, roomId!, score!);
+    await updateUserScore(userId!, score!);
+    await createVote(userId!, roomId!, score!);
   };
 
   return (

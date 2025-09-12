@@ -17,7 +17,7 @@ function App() {
               {/* Public routes */}
               <Route path="/" element={<HomePage />} />
               <Route path="/join/:roomId" element={<JoinRoomPage />} />
-              <Route path="/room/:roomId" element={<RoomPage />} />
+              <Route path="/room/:roomId/:userId" element={<RoomPage />} />
               
               {/* 404 route - keep at the end */}
               <Route path="*" element={<NotFoundPage />} />

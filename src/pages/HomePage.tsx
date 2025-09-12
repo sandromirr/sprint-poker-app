@@ -14,7 +14,6 @@ import { checkRoom, createRoom } from '../services/room.service';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { LocalStorageManager } from '../utils/storage';
 
 const HomePage: React.FC = () => {
   const [stats, setStats] = useState<StatItem[]>([]);
@@ -42,8 +41,7 @@ const HomePage: React.FC = () => {
   const handleCreateRoom = async (username: string) => {
     try {
       const { roomId, userId } = await createRoom(username);
-      LocalStorageManager.saveData({ roomId, userId });
-      navigate(`/room/${roomId}`);
+      navigate(`/room/${roomId}/${userId}`);
     } catch (error) {
       console.error('Error creating room:', error);
     }

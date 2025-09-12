@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createUser } from '../services/user.service';
-import { LocalStorageManager } from '../utils/storage';
 import { checkRoom } from '../services/room.service';
 
 const JoinRoomPage: React.FC = () => {
@@ -26,8 +25,7 @@ const JoinRoomPage: React.FC = () => {
     e.preventDefault();
     if (roomId.trim() && username.trim()) {
       const userId = await createUser(roomId, username);
-      LocalStorageManager.saveData({ roomId, userId });
-      navigate(`/room/${roomId}`, { state: { username } });
+      navigate(`/room/${roomId}/${userId}`, { state: { username} });
     }
   };
 
