@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import PlayerList from '../components/PlayerList';
 import PokerCardComponent from '../components/PokerCardComponent';
 import RoomHeader from '../components/RoomHeader';
-import { resetUsersScore, subscribeUsersInRoom, updateUserScore, setUserOnlineStatus } from '../services/user.service';
+import { resetUsersScore, subscribeUsersInRoom, updateUserScore } from '../services/user.service';
 import type { RoomUser } from '../models/room-user';
 import { createVote } from '../services/vote.service';
 import { subscribeRoomData, updateRoomStatus } from '../services/room.service';
